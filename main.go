@@ -62,6 +62,9 @@ func main() {
 	// Route untuk dokumentasi Swagger
 	// app.Get("/swagger/*", fiberSwagger.Handler)
 
+	// Variabel untuk menyimpan token
+	var authToken string
+
 	// Unauthenticated route
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, unauthenticated!")
@@ -69,6 +72,11 @@ func main() {
 
 	// JWT Authentication Middleware
 	app.Use(func(c *fiber.Ctx) error {
+		if authToken == "" {
+			// Token belum di-generate, lanjutkan ke middleware atau route selanjutnya
+			return c.Next()
+		}
+
 		// Mengambil token dari header Authorization
 		tokenHeader := c.Get("Authorization")
 
