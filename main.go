@@ -1,7 +1,20 @@
 // main.go
 package main
 
+// @title Your GoFiber API
+// @version 1.0
+// @description This is a sample API using GoFiber and Swagger.
+// @termsOfService https://example.com/terms
+// @contact.name API Support
+// @contact.url https://www.example.com/support
+// @contact.email support@example.com
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+// @host localhost:3000
+// @BasePath /v1
+// @schemes http https
 import (
+	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -12,6 +25,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	//"github.com/swaggo/fiber-swagger"
 )
 
 var jwtSecret = []byte("secret_key")
@@ -45,6 +59,9 @@ func main() {
 	app.Use(requestid.New())
 	app.Use(limiter.New())
 
+	// Route untuk dokumentasi Swagger
+	// app.Get("/swagger/*", fiberSwagger.Handler)
+
 	// Unauthenticated route
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, unauthenticated!")
@@ -52,19 +69,44 @@ func main() {
 
 	// JWT Authentication Middleware
 	app.Use(func(c *fiber.Ctx) error {
-		token := c.Get("Authorization")[7:]
-		claims := &Claims{}
+		// Mengambil token dari header Authorization
+		tokenHeader := c.Get("Authorization")
 
-		_, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-			return jwtSecret, nil
-		})
-
-		if err != nil {
+		// Memeriksa apakah header Authorization kosong atau tidak memiliki format yang benar
+		if tokenHeader == "" || len(tokenHeader) < 7 || tokenHeader[:7] != "Bearer " {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"message": "Unauthorized",
+				"message": "Unauthorized: Invalid Authorization header format",
 			})
 		}
 
+		// Mengambil token dari string setelah "Bearer "
+		token := tokenHeader[7:]
+
+		// Membuat struktur untuk menyimpan klaim JWT
+		claims := &Claims{}
+
+		// Parsing dan verifikasi token JWT
+		parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+			return jwtSecret, nil
+		})
+
+		// Memeriksa kesalahan saat parsing token
+		if err != nil {
+			fmt.Println("Error parsing token:", err)
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"message": "Unauthorized: Error parsing token",
+			})
+		}
+
+		// Memeriksa apakah token valid
+		if !parsedToken.Valid {
+			fmt.Println("Invalid token:", parsedToken)
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"message": "Unauthorized: Invalid token",
+			})
+		}
+
+		// Jika token valid, lanjutkan ke middleware atau route selanjutnya
 		return c.Next()
 	})
 
@@ -75,7 +117,8 @@ func main() {
 
 	// Login endpoint
 	app.Post("/login", func(c *fiber.Ctx) error {
-		
+		username := c.FormValue("username")
+		passwd := c.FormValue("password")
 
 		// Perform authentication logic (contoh sederhana)
 		if username == "user123" && passwd == "password123" {
@@ -87,6 +130,7 @@ func main() {
 				})
 			}
 
+			// Sertakan token dalam respons JSON
 			return c.JSON(fiber.Map{
 				"token": token,
 			})
