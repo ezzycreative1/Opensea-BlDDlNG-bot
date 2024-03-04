@@ -1,0 +1,19 @@
+basePath: /v1
+host: localhost:3000
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: https://www.example.com/support
+  description: This is a sample API using GoFiber and Swagger.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://example.com/terms
+  title: Your GoFiber API
+  version: "1.0"
+paths: {}
+schemes:
+- http
+- https
+swagger: "2.0"
